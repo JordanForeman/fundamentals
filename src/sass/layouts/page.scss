@@ -1,6 +1,10 @@
 ---
 ---
+$font-color: #4c4c4c;
 
 body.page {
-    // TODO: add your page styles here
+    h3 {
+        border-left: 3px solid $font-color;
+        padding-left: 2px;
+    }
 }
