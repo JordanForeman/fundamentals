@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page.title }} - {{ site.title }}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ page.excerpt | strip_html }}">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+    <meta property="og:title" content="{{ page.title }}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:description" content="{{ page.excerpt | strip_html }}" />
+    <meta property="og:url" content="{{ page.permalink }}" />
+    <meta property="og:site_name" content="{{ page.title }}" />
+
+    <meta name="twitter:title" content="{{ page.title }}" />
+    <meta name="twitter:description" content="{{ page.excerpt | strip_html }}" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {% stylesheet reset %}
+    {% stylesheet main %}
+    {% stylesheet layouts/post %}
+</head>
+<body class="post post-{{ page.category }}">
+    <div class="header post-header">
+        <h1>{{ page.title }}</h1>
+        <h3>{{ page.date | date_to_string: "ordinal", "US" }}</h3>
+    </div>
+
+    <div class="post-contents">
+        <div class="post-contents__inner">
+            {% if page.subtitle %}
+            <h2 class="subtitle">{{ page.subtitle }}</h2>
+            {% endif %}
+            {{ content }}
+        </div>
+    </div>
+
+    {% include highlightjs.html %}
+</body>
+</html>

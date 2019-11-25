@@ -1,0 +1,80 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v1
+      - name: Use Node.js
+        uses: dcodeIO/setup-node-nvm@master
+      - name: Install cf-find utility
+        run: npm i -g cf-find@latest
+      - name: Setup Ruby Environment
+        uses: actions/setup-ruby@master
+        with:
+          ruby-version: '2.x'
+      - name: Install Ruby Dependencies
+        run: |
+          sudo apt-get install rubygems
+          sudo apt-get install ruby-dev
+          sudo gem install jekyll bundler
+      - name: Install Jekyll Dependencies
+        run: bundle install
+      - name: Build Jekyll Site
+        run: bundle exec jekyll build
+      - name: Terraform Init
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.14
+          tf_actions_subcommand: 'init'
+          tf_actions_working_dir: terraform
+          args: '-var-file="./var/default.tfvars"'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: 'us-east-1'
+      - name: Terraform Plan
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.14
+          tf_actions_subcommand: 'plan'
+          tf_actions_working_dir: terraform
+          args: '-var-file="./var/default.tfvars"'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: 'us-east-1'
+      - name: Terraform Apply
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.12.14
+          tf_actions_subcommand: 'apply'
+          tf_actions_working_dir: terraform
+          args: '-var-file="./var/default.tfvars"'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: 'us-east-1'
+      - name: Deploy Updated Artifacts
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --delete
+        env:
+          AWS_S3_BUCKET: fundamentals.jordanforeman.com
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_REGION: 'us-east-1'
+          SOURCE_DIR: 'public'
+      - name: Invalidate CloudFront Cache
+        run: aws cloudfront create-invalidation --distribution-id $(npx cf-find fundamentals.jordanforeman.com --silent) --paths "/*"
+        env:
+          AWS_REGION: 'us-east-1'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}

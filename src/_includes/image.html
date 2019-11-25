@@ -1,0 +1,8 @@
+{% capture path %}/assets/images/{{include.href}}{% endcapture %}
+
+<div
+    title="{{ include.title }}"
+    style="background-image: url({{ path | absolute_path }})"
+    class="image img {{ include.class }}"
+>
+</div>

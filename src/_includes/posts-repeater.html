@@ -1,0 +1,13 @@
+{% stylesheet components/posts-repeater %}
+
+<ul class="posts-repeater">
+    {% for post in site.posts %}
+    <li>
+        <h3>
+            <a href="{{ post.url }}">{{ post.title }}</a>
+        </h3>
+        <h4>{{ post.subtitle }}</h4>
+        <h5>{{ post.date | date_to_string: "ordinal", "US" }}</h5>
+    </li>
+    {% endfor %}
+</ul>
