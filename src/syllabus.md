@@ -36,7 +36,6 @@ Upon completing this course, students will be have a familiarity with the follow
 * HTML
 * CSS
 * JavaScript
-* jQuery
 * React
 
 #### Server-Side Web Development
