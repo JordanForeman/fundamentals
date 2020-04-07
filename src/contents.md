@@ -19,6 +19,7 @@ permalink: /contents/
     * HTML and Semantic Markup
     * CSS and making things look pretty
     * JavaScript in the Browser
+        * [React and Redux 101](/react-and-redux/)
 * Intro to Programming
     * Basic Logic
         * Variables

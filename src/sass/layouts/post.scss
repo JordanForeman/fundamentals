@@ -2,5 +2,9 @@
 ---
 
 body.post {
-    // TODO: add your post styles here
+    img {
+        max-height: 350px;
+        margin: 0 auto;
+        display: block;
+    }
 }

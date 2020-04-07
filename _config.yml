@@ -36,7 +36,7 @@ defaults:
       path: "src/assets/images"
     values:
       image: true
-permalink: /:categories/:slug/
+permalink: /:slug/
 
 css_dir: sass
 js_dir: js
