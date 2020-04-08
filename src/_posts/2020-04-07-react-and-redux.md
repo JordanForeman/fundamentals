@@ -32,19 +32,12 @@ JSX is a "syntax extension" for the JavaScript language. What this means is that
 
 What does this mean? In layman's term, it means that we can include HTML-like syntax directly within our JavaScript, and it works!
 
-```jsx
-import React from 'react';
-
-class MyComponent() extends React.Component{
-    render() {
-        return (
-            <div>
-                <h1>Hello World!</h1>
-            </div>
-        );
-    }
-}
-```
+<p class="codepen" data-height="265" data-theme-id="dark" data-default-tab="js,result" data-user="JordanForeman" data-slug-hash="rNOBRpe" style="height: 265px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;" data-pen-title="React - Basic Rendering Demo">
+  <span>See the Pen <a href="https://codepen.io/JordanForeman/pen/rNOBRpe">
+  React - Basic Rendering Demo</a> by Jordan Foreman (<a href="https://codepen.io/JordanForeman">@JordanForeman</a>)
+  on <a href="https://codepen.io">CodePen</a>.</span>
+</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
 The above code-block is the most basic example of a [React component](https://reactjs.org/docs/react-component.html) that you'll see. At its core, React is simply a mechanism for organizing and composing many different components, each of which result in the rendering of a DOM node and its children (which could, in turn, also be React components).
 
@@ -60,36 +53,44 @@ If we were to render the above React component in a live webpage environment, yo
 </body>
 ```
 
+### Composition
+
+Let's say that, for whatever reason, we wanted to separate the rendering of our `<h1>` from the rest of our _"application"_. Perhaps we're wanting to separate these two concerns for better code organization, or we plan to reuse the `<h1>` somewhere else. React's leveraging of JSX allows us to use our own components as markup elements, and render them just like any old HTML entity, like so:
+
+<p class="codepen" data-height="435" data-theme-id="dark" data-default-tab="js,result" data-user="JordanForeman" data-slug-hash="ExVYMdW" style="height: 265px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;" data-pen-title="React - Basic Composition Demo">
+  <span>See the Pen <a href="https://codepen.io/JordanForeman/pen/ExVYMdW">
+  React - Basic Composition Demo</a> by Jordan Foreman (<a href="https://codepen.io/JordanForeman">@JordanForeman</a>)
+  on <a href="https://codepen.io">CodePen</a>.</span>
+</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+Along with allowing us to define our own "custom" elements (which are themselves just nodes of further elements, both custom and classic), we can also provide "child" components with any number of [component props](https://reactjs.org/docs/components-and-props.html) (short for "properties") that can influence the way they render. For example:
+
+<p class="codepen" data-height="480" data-theme-id="dark" data-default-tab="js,result" data-user="JordanForeman" data-slug-hash="YzyKgBv" style="height: 265px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;" data-pen-title="React - Basic Props Demo">
+  <span>See the Pen <a href="https://codepen.io/JordanForeman/pen/YzyKgBv">
+  React - Basic Props Demo</a> by Jordan Foreman (<a href="https://codepen.io/JordanForeman">@JordanForeman</a>)
+  on <a href="https://codepen.io">CodePen</a>.</span>
+</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+See how our parent `MyComponent` provides its child `Hello` component with a prop called `user` with a value of `'World'`. By changing our `Hello` component ever so slightly, we're able to change the way it renders. We can even render it several times with different values, without having to rewrite much code.
+
+But even this in itself is not a very interesting behavior. After all, if we wanted a simple static website to say "Hello", we could just write our own HTML to do so with less effort.
+
 ### Dynamic Rendering
 
-But this in itself is not a very interesting behavior. After all, if we wanted a simple static website to say "Hello", we could just write our own HTML to do so with less effort. Where React really begins to provide value is when we couple the rendering of particular components with business logic and user-initiated behaviors to dynamically choose _what_ to render, and _when_. Let's take a contrived example:
+Where React really begins to provide value is when we couple the rendering of particular components with business logic and user-initiated behaviors to dynamically choose _what_ to render, and _when_. Let's take a contrived example:
 
-```jsx
-import React from 'react';
+<p class="codepen" data-height="500" data-theme-id="dark" data-default-tab="js,result" data-user="JordanForeman" data-slug-hash="BaoBbzO" style="height: 265px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;" data-pen-title="React - Basic State Demo">
+  <span>See the Pen <a href="https://codepen.io/JordanForeman/pen/BaoBbzO">
+  React - Basic State Demo</a> by Jordan Foreman (<a href="https://codepen.io/JordanForeman">@JordanForeman</a>)
+  on <a href="https://codepen.io">CodePen</a>.</span>
+</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-class MyComponent() extends React.Component{
-    updateGreetee(event) {
-        this.setState({
-            user: event.target.value
-        });
-    }
+You can edit the text field in the demo above, and see the text change from `Hello World!` to `Hello X!` where `X` is whatever you have currently typed into the text field above it. This is a very simple example of the sort of dynamic value binding that makes React rendering so powerful. 
 
-    render() {
-        return (
-            <div>
-                <input
-                    type='text'
-                    value={this.state.user}
-                    onChange={this.updateGreetee}
-                />
-                <h1>Hello {this.state.user}!</h1>
-            </div>
-        );
-    }
-}
-```
-
-
+Let's break down 
 
 ---
 
