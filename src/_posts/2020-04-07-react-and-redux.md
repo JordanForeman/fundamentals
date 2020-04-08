@@ -114,6 +114,178 @@ By combining just a few core concepts of the React ecosystem, we're able to crea
 
 By enabling us to separate concerns of various nodes of the render tree, React empowers developers to design and maintain highly scalable codebases and work far more effectively over time and with others. Its ability to rerender any individual branch of the DOM node tree in response to changes in things such as `props` or `state` make it possible to create highly interactive application experiences in the browser.
 
+## Redux
+
+Now that we have a basic understanding of React's rendering and reactivity, its important to talk in more detail about state management.
+
+We've already seen how React components themselves are capable of managing their own state objects and using those as part of their render logic. However, as your application grows in scope and size, you'll likely find yourself needing to access the state of one component from another that is much further above in the DOM tree than its direct parent (as seen above) or even completely unrelated. 
+
+While its possible to work around these limitations with React alone, the cost of moving state management further and further up the component tree every time access patterns need to change is seldom one that a team of developers working on a large application would want to pay. Its for this reason that tools like Redux exist.
+
+### Do One Thing, and Do It Well
+
+React's greatest strength is its reactive rendering engine. By removing the burden of state management from our React components and moving that responsibility elsewhere, we can keep our React components clean and responsible for what they're good at - rendering DOM nodes. Because our application itself still needs some sort of stateful awareness, we can use a tool like Redux (or MobX, or ReactiveX, or...) to handle that.
+
+By taking these two interrelated (but distinct) concerns - state management and render - and using a dedicated tool for each, we remove any need to sacrifice efficacy in addressing one concerns for the shortcomings of the library used to implement the other.
+
+### Managing a Redux Store
+
+Again, Redux takes the concept of state management and removes it from the shackles of our component hierarchy. Rather than having small pockets of state scattered throughout a few React components, we instead manage state independently as one single isolated entity - in the case of Redux, our Redux store.
+
+A [Redux Store](https://redux.js.org/basics/store) at its most basic can be understood as a mechanism for managing state. A store will have two features that we'll use for the sake of this lesson:
+
+* `state` - an object that represents our current state. Can be as complex or simple as you'd like
+* `dispatch` - an interface for applying [`actions`](https://redux.js.org/basics/actions) to our `state` that change it over time
+
+#### Actions
+
+For example, let's say our Redux store manages a person's name. It might have a `state` object that looks like so:
+
+```json
+{
+    "firstName": "Jordan",
+    "lastName": "Foreman"
+}
+```
+
+And let's say that I decide I don't really like my last name and want to change it. I might want to `dispatch` an `action` to my store that tells its that my `lastName` is now `Escobar` (no relation). We might see something like:
+
+```js
+const action = {
+    type: 'Update Last Name',
+    lastName: 'Escobar'
+};
+
+store.dispatch(action);
+```
+
+In the snippet above, we've "dispatched" an action object to our store with a distinct `type` and the `lastName` value that we'd like our state updated to reflect. At the moment, nothing would happen. We're still missing one crucial ingredient:
+
+#### Reducers
+
+Because our state is likely far more complicated than our contrived example above, we can't just make actions and assume that Redux can know what to do with them. We need to create [`reducers`](https://redux.js.org/basics/reducers) that interpret the `actions` that have been dispatched and respond accordingly. For example:
+
+```js
+function myReducer(state, action) {
+    if (action.type === 'Update Last Name') {
+        return {
+            ...state,
+            lastName: action.lastName
+        };
+    }
+
+    return state;
+}
+```
+
+We now have a `reducer` that knows how to respond when it receives an action with a type of `Update Last Name`, and returns an object that mirrors the current `state`, but with the `lastName` updated to reflect what the `action` says it should. This is how we update our store's state.
+
+You might notice that we've not actually defined the shape that our state takes. Redux does this inherently by executing all reducers that have been associated to a store at startup, and using the output object as the basis for the rest of our application. At startup, our reducer above will be run, and because `state` is initially `undefined`, it will continue to be so until our reducer is dispatched an action with a matching type.
+
+<p align='center'>
+    <strong>:exclamation: important :exclamation:</strong>
+</p>
+
+You'll notice that our reducer doesn't actually _modify_ the state that it receives, but rather returns an entirely new object each time that it's executed. This is a core tenant of functional programming, and one that we won't dive into here. Suffice to say that our reducers never actually change anything - they always create a new repesentation of what our state should look like and `return` it.
+
+#### Action Creators
+
+A common pattern for `action` objects is to write are referred to as `Action Creators`. These are dedicated functions that are responsible for constructing `action` objects on-the-fly and can be used as a simple utility for when the same action is dispatched from various parts of our code:
+
+```js
+function changeLastName(lastName) {
+    return {
+        type: 'Update Last Name',
+        lastName
+    };
+}
+
+dispatch(changeLastName('Escobar'));
+```
+
+### The Dux Pattern
+
+Another pattern that I'm particularly partial to is called [`Ducks`](https://github.com/erikras/ducks-modular-redux) (or, the Dux pattern). It aims to consolidate actions and reducers into a single place so as to reason about individual pieces of state on their own. By leveraging Redux's `combineReducers` method, we can then merge multiple "Dux" into on giant Redux store. 
+
+To take our "name" example and overcomplicate it just a bit, let's do this:
+
+```
+/state
+| - index.js
+| - firstName.js
+| - lastName.js
+```
+
+Where our `state` will represent our original object (`{firstName, lastName}`) and be a collection of two reducers: one for each name. We compose the two like so:
+
+```js
+// state/index.js
+import {combineReducers} from 'redux';
+import firstName from './firstName.js';
+import lastName from './lastName.js';
+
+export default combineReducers({
+    firstName,
+    lastName
+});
+```
+
+We'll use `state/index.js` when initializing our Redux store. This will result in reducers defined in both `firstName.js` and `lastName.js` to be executed, and result in an initial state object that looks like so:
+
+```json
+{
+    "firstName": "whatever is output from firstName.js reducer by default",
+    "lastName": "whatever is output from lastName.js reducer by default"
+}
+```
+
+Now let's take a look at what our `firstName.js` file might look like:
+
+```js
+const UPDATE_FIRST_NAME = 'Update First Name';
+const DEFAULT_FIRST_NAME = 'Jordan';
+
+export const actions = {
+    update: (firstName) => ({
+        type: UPDATE_FIRST_NAME,
+        firstName
+    })
+};
+
+export default function (state = DEFAULT_FIRST_NAME, action) {
+    if (action.type === UPDATE_FIRST_NAME) {
+        return action.firstName;
+    }
+
+    return state;
+}
+
+export const selectors = {
+    getFirstName: state => state.firstName
+};
+```
+
+Let's break this down:
+
+* Actions
+    * Our Dux (duck?) will export an object whose properties are all Action Creators as defined above. 
+* Default Export (our reducer)
+    * Our reducer will either return something new based on the action, or it will return the current state. If current state is `undefined`, it'll default to `Jordan`.
+* Selectors
+    * We'll also export a utility method for accessing the `firstName` on our state. Note that the state passed to our selectors is the entire top-level state, whereas our reducer is only concerned with its own "slice" of state.
+
+`lastName.js` should look nearly identical, but with a few more specific implementation details. 
+
+### Conclusion: Redux
+
+This may all seem overly complex for our use case, but remember that is incredibly contrived. Most modern web applications are going to be dealing with much more complex state trees and will need far more complex actions, reducers, and even selectors. Redux (and the dux pattern) provides a strong foundation for implementing these behaviors in a consistent and understandable fashion, albeit with some amount of boilerplate code.
+
+## React-Redux - Putting the Pieces Together
+
+```js
+// TODO:
+```
+
 ---
 
 ### Additional Resources
