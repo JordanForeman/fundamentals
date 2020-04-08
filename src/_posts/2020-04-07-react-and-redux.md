@@ -90,7 +90,29 @@ Where React really begins to provide value is when we couple the rendering of pa
 
 You can edit the text field in the demo above, and see the text change from `Hello World!` to `Hello X!` where `X` is whatever you have currently typed into the text field above it. This is a very simple example of the sort of dynamic value binding that makes React rendering so powerful. 
 
-Let's break down 
+Let's break down what we've added to accomplish this:
+
+#### Initializing State in the Constructor
+
+We'll talk shortly about tooling for more advanced state management, however, React components are capable of maintaining their own internal [component state](https://reactjs.org/docs/faq-state.html) that, for simple use-cases like the ones we're working through should suffice. 
+
+Since everything in JavaScript is, at its core, an object we can think of our component state in much the same way. By initializing an instance property `state` on our component during as part of its `constructor`, we tell React that this component is _stateful_, and that it should respond to changes to its state. You can think of `state` as a kind-of _reserved_ term in React components.
+
+#### Modifying State
+
+The React `Component` superclass exposes behaviors for modifying and accessing state that can and should be used to keep state updated in response to events occurring. In the example above, we create an instance method, `updateGreetee` that uses the `Component` superclass' `setState` method to update the value of `state.user` to whatever the value of a given DOM event is. 
+
+We're then able to use our `updateGreetee` event handler as the `onChange` prop for a generic HTML text input. Now, whenever the `input` would fire a `change` event, our component will be able to parse that event and modify its own state accordingly. 
+
+#### Rendering Based on State
+
+Just like when rendering based on `this.props`, components can also render values from `this.state` and will automatically be re-rendered when the React engine sees a change. By setting our `Hello` component's `user` prop to `this.state.user`, we ensure that the text printed in our `<h1>` is always whatever is in our state (which itself will always match what is in our text box). 
+
+### Conclusion: React
+
+By combining just a few core concepts of the React ecosystem, we're able to create highly composable and dynamic component trees and easily swap them in and out of our rendered DOM. State management and (perhaps more importantly) composability are two essentail concepts to working with React and are significant factors in its popularity as a framework for building web applications. 
+
+By enabling us to separate concerns of various nodes of the render tree, React empowers developers to design and maintain highly scalable codebases and work far more effectively over time and with others. Its ability to rerender any individual branch of the DOM node tree in response to changes in things such as `props` or `state` make it possible to create highly interactive application experiences in the browser.
 
 ---
 
